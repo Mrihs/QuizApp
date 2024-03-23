@@ -5,14 +5,21 @@ using UnityEngine.UI;
 using UnityEngine;
 using TMPro;
 using UnityEngine.SceneManagement;
+using Photon.Pun;
+using Photon.Realtime;
 
-public class Questions : MonoBehaviour
+
+public class Questions : MonoBehaviourPunCallbacks
 {
     [Header("Player Fields")]
     [Tooltip("The Text for the Players' Name")]
     public TMP_Text playerNameText;
     [Tooltip("The Text for the Players' Score")]
     public TMP_Text playerScoreText;
+    [Tooltip("The Text for the Opponents' Name")]
+    public TMP_Text opponentNameText;
+    [Tooltip("The Text for the Opponents' Score")]
+    public TMP_Text opponentScoreText;
     [Tooltip("The Text for the Players' Lobby")]
     public TMP_Text playerLobbyText;
     [Tooltip("The Text for the Category")]
@@ -54,6 +61,9 @@ public class Questions : MonoBehaviour
     [Tooltip("Buttons' text Color")]
     public Color buttonTextColor;
 
+    [Tooltip("A Text-Efelemt, which displays the log infos")]
+    public TMP_Text debugText;
+
 
     [Header("Questions")]
     [Tooltip("The CSV-File with the Questions")]
@@ -72,6 +82,8 @@ public class Questions : MonoBehaviour
     public string questionNumberText; // The Text for the questionCounter
     public int questionNumber = 1; // A Variable for the question Count
 
+    private string lobbyCodeName;
+    private string opponentName;
 
 
     // Structure for the Question-Data
@@ -113,9 +125,14 @@ public class Questions : MonoBehaviour
         else //Name Players' Lobby if no key is defined in the PlayerPrefs
         { Category = "Test"; }
 
+        //Create the CodeName for the Lobby
+        lobbyCodeName = lobbyName + Category;
+
+        // Connect to Photon server
+        PhotonNetwork.ConnectUsingSettings();
+
         // Lese das CSV-Asset und fülle die Frage-Datenliste
         LoadCSV(csvFile.text, Category);
-
 
 
 
@@ -148,14 +165,19 @@ public class Questions : MonoBehaviour
 
     public void Update()
     {
+        //Debug.Log("Photon Network Connected: " + PhotonNetwork.IsConnected);
+        //Debug.Log("Photon InRoom: " + PhotonNetwork.InRoom);
         //Assign Variables to the names
         playerNameText.text = playerName;
         playerScoreText.text = playerScore.ToString();
         playerLobbyText.text = lobbyName;
         categoryText.text = Category;
 
+        opponentNameText.text = opponentName;
+
+
         questionCounter.text = "Frage " + questionNumber.ToString();
-}
+    }
 
 
 
@@ -167,6 +189,9 @@ public class Questions : MonoBehaviour
 ///////////////////////// Button Functions /////////////////////////
 public void BackButtonPressed()
     {
+        // Leave Photon room
+        PhotonNetwork.LeaveRoom();
+
         //Load Scene Number 0
         SceneManager.LoadScene(0);
     }
@@ -235,7 +260,7 @@ public void BackButtonPressed()
 
         if (buttonID == questionDataList[currentQuestionIndex].correct)
         {
-            Debug.Log("Correct Answer!");
+            //Debug.Log("Correct Answer!");
             if (buttonID == 1) { startButtonAColor = correctButtonColor; }
             if (buttonID == 2) { startButtonBColor = correctButtonColor; }
             if (buttonID == 3) { startButtonCColor = correctButtonColor; }
@@ -244,7 +269,7 @@ public void BackButtonPressed()
 
         if (buttonID != questionDataList[currentQuestionIndex].correct)
         {
-            Debug.Log("Wrong Answer!");
+            //Debug.Log("Wrong Answer!");
             if (buttonID == 1) { startButtonAColor = wrongButtonColor; }
             if (buttonID == 2) { startButtonBColor = wrongButtonColor; }
             if (buttonID == 3) { startButtonCColor = wrongButtonColor; }
@@ -413,4 +438,65 @@ public void BackButtonPressed()
             list[n] = value;
         }
     }
+
+
+
+
+
+
+
+
+    //public override void OnConnected()
+    public override void OnConnectedToMaster()
+    {
+        base.OnConnectedToMaster();
+
+        Debug.Log("Connected to Photon ");
+
+        // Check if lobby with the lobbyCodeName already exists
+        PhotonNetwork.JoinOrCreateRoom(lobbyCodeName, new Photon.Realtime.RoomOptions { MaxPlayers = 2 }, null);
+    }
+
+    public override void OnJoinedRoom()
+    {
+        Debug.Log("Joined lobby: " + PhotonNetwork.CurrentRoom.Name);
+        // Implement logic for what to do when joined lobby
+
+        // Rufe die Liste der Spieler im Raum ab
+        Player[] players = PhotonNetwork.PlayerList;
+
+        // Durchlaufe die Liste der Spieler und suche nach dem anderen Spieler
+        foreach (Player player in players)
+        {
+            // Überprüfe, ob es sich bei dem Spieler nicht um den lokalen Spieler handelt
+            if (!player.IsLocal)
+            {
+                // Weise den Namen des anderen Spielers der opponentName-Variable zu
+                opponentName = player.NickName;
+                opponentNameText.text = opponentName;
+                break; // Beende die Schleife, sobald der andere Spieler gefunden wurde
+            }
+        }
+    }
+
+    public override void OnJoinRoomFailed(short returnCode, string message)
+    {
+        Debug.Log("Failed to join lobby: " + message);
+        // Implement logic for what to do if joining lobby fails
+    }
+
+    public override void OnLeftRoom()
+    {
+        // After leaving the room, load Scene Number 0
+        SceneManager.LoadScene(0);
+    }
+
+
+    public void OnFailedToConnectToPhoton(object parameters)
+    {
+        Debug.Log("OnFailedToConnectToPhoton. StatusCode: " + parameters + " ServerAddress: " + PhotonNetwork.ServerAddress);
+    }
+
+
+
 }
