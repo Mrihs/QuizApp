@@ -73,6 +73,7 @@ public class Questions : MonoBehaviour
     // Structure for the Question-Data
     public struct QuestionData
     {
+        public string category;
         public string question;
         public string option1;
         public string option2;
@@ -359,20 +360,21 @@ public void BackButtonPressed()
                 continue; // Skip the first line
             }
             string[] fields = line.Split(';');
-            if (fields.Length == 6)
+            if (fields.Length == 7)
             {
                 QuestionData question = new QuestionData();
-                question.question = fields[0];
-                List<string> options = new List<string> { fields[1], fields[2], fields[3], fields[4] };
+                question.category = fields[0];
+                question.question = fields[1];
+                List<string> options = new List<string> { fields[2], fields[3], fields[4], fields[5] };
                 // Zufällige Umplatzierung der Optionen
                 Shuffle(options);
                 question.option1 = options[0];
                 question.option2 = options[1];
                 question.option3 = options[2];
                 question.option4 = options[3];
-                int.TryParse(fields[5], out question.correct);
+                int.TryParse(fields[6], out question.correct);
                 // Anpassen des 'correct'-Werts basierend auf der neuen Position der ersten Option
-                question.correct = options.IndexOf(fields[1])+1;
+                question.correct = options.IndexOf(fields[2])+1;
                 questionDataList.Add(question);
 
 
