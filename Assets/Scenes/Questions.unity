@@ -1755,6 +1755,7 @@ MonoBehaviour:
   buttonB: {fileID: 1395709379}
   buttonC: {fileID: 1685595189}
   buttonD: {fileID: 1761232751}
+  defaultQuestionPanelColor: {r: 1, g: 1, b: 1, a: 1}
   defaultButtonColor: {r: 0.8941177, g: 0.8941177, b: 0.8941177, a: 1}
   correctButtonColor: {r: 0, g: 1, b: 0.12923098, a: 1}
   wrongButtonColor: {r: 1, g: 0, b: 0, a: 1}

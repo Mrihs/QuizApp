@@ -41,6 +41,8 @@ public class Questions : MonoBehaviour
     public GameObject buttonD;
 
     [Header("Button Colors")]
+    [Tooltip("The Default Color of the Question Panel")]
+    public Color defaultQuestionPanelColor;
     [Tooltip("The Default Button Color")]
     public Color defaultButtonColor;
     [Tooltip("Buttons' color for correct answer")]
@@ -129,7 +131,7 @@ public class Questions : MonoBehaviour
         buttonTextB.color = buttonTextColor;
         buttonTextC.color = buttonTextColor;
         buttonTextD.color = buttonTextColor;
-
+        questionPannel.GetComponent<Image>().color = defaultQuestionPanelColor;
     }
 
 
@@ -253,7 +255,11 @@ public void BackButtonPressed()
             Color newButtonCColor = new Color(startButtonCColor.r, startButtonCColor.g, startButtonCColor.b, Mathf.Lerp(startButtonCColor.a, 0f, t));
             Color newButtonDColor = new Color(startButtonDColor.r, startButtonDColor.g, startButtonDColor.b, Mathf.Lerp(startButtonDColor.a, 0f, t));
 
+            Color newQuestionPannelColor = new Color(defaultQuestionPanelColor.r, defaultQuestionPanelColor.g, defaultQuestionPanelColor.b, Mathf.Lerp(defaultQuestionPanelColor.a, 0f, t));
+
+
             // Aktualisieren der Farbeinstellungen der Buttons
+            questionPannel.GetComponent<Image>().color = newQuestionPannelColor;
             buttonA.GetComponent<Image>().color = newButtonAColor;
             buttonB.GetComponent<Image>().color = newButtonBColor;
             buttonC.GetComponent<Image>().color = newButtonCColor;
@@ -270,6 +276,7 @@ public void BackButtonPressed()
         }
 
         // Sicherstellen, dass die Farbe am Ende des Fades auf vollständig transparent gesetzt wird
+        questionPannel.GetComponent<Image>().color = new Color(defaultQuestionPanelColor.r, defaultQuestionPanelColor.g, defaultQuestionPanelColor.b, 0f);
         buttonA.GetComponent<Image>().color = new Color(startButtonAColor.r, startButtonAColor.g, startButtonAColor.b, 0f);
         buttonB.GetComponent<Image>().color = new Color(startButtonBColor.r, startButtonBColor.g, startButtonBColor.b, 0f);
         buttonC.GetComponent<Image>().color = new Color(startButtonCColor.r, startButtonCColor.g, startButtonCColor.b, 0f);
@@ -299,8 +306,10 @@ public void BackButtonPressed()
             // Direkte Verwendung des Alpha-Werts aus Lerp
             Color newButtonColor = new Color(startButtonColor.r, startButtonColor.g, startButtonColor.b, Mathf.Lerp(0f, 1f, t));
             Color newTextColor = new Color(buttonTextColor.r, buttonTextColor.g, buttonTextColor.b, Mathf.Lerp(0f, 1f, t));
+            Color newQuestionPannelColor = new Color(defaultQuestionPanelColor.r, defaultQuestionPanelColor.g, defaultQuestionPanelColor.b, Mathf.Lerp(0f, 1f, t));            
 
             // Aktualisieren der Farbeinstellungen der Buttons
+            questionPannel.GetComponent<Image>().color = newQuestionPannelColor;
             buttonA.GetComponent<Image>().color = newButtonColor;
             buttonB.GetComponent<Image>().color = newButtonColor;
             buttonC.GetComponent<Image>().color = newButtonColor;
@@ -317,6 +326,8 @@ public void BackButtonPressed()
         }
 
         // Sicherstellen, dass die Farbe am Ende des Fades auf vollständig undurchsichtig gesetzt wird
+        questionPannel.GetComponent<Image>().color = new Color(defaultQuestionPanelColor.r, defaultQuestionPanelColor.g, defaultQuestionPanelColor.b, 1f);
+
         buttonA.GetComponent<Image>().color = new Color(defaultButtonColor.r, defaultButtonColor.g, defaultButtonColor.b, 1f);
         buttonB.GetComponent<Image>().color = new Color(defaultButtonColor.r, defaultButtonColor.g, defaultButtonColor.b, 1f);
         buttonC.GetComponent<Image>().color = new Color(defaultButtonColor.r, defaultButtonColor.g, defaultButtonColor.b, 1f);
@@ -329,7 +340,6 @@ public void BackButtonPressed()
         buttonTextC.color = new Color(buttonTextColor.r, buttonTextColor.g, buttonTextColor.b, 1f);
         buttonTextD.color = new Color(buttonTextColor.r, buttonTextColor.g, buttonTextColor.b, 1f);
         questionCounter.color = new Color(buttonTextColor.r, buttonTextColor.g, buttonTextColor.b, 1f);
-
     }
 
 
