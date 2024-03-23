@@ -36,6 +36,14 @@ public class Questions : MonoBehaviour
     [Tooltip("The Button Element for Button D")]
     public GameObject buttonD;
 
+    [Header("Button Colors")]
+    [Tooltip("The Default Button Color")]
+    public Color defaultButtonColor;
+    [Tooltip("Buttons' color for correct answer")]
+    public Color correctButtonColor;
+    [Tooltip("Buttons' color after wrong answer given")]
+    public Color wrongButtonColor;
+
 
     [Header("Questions")]
     [Tooltip("The CSV-File with the Questions")]
@@ -177,29 +185,42 @@ public class Questions : MonoBehaviour
 
     IEnumerator FadeOutButtons(float duration, int buttonID)
     {
+        Color startButtonColor = buttonA.GetComponent<Image>().color;
+        Color startTextColor = buttonTextA.color;
         float startTime = Time.time;
-        Color startColor = buttonTextA.color;
 
         while (Time.time - startTime < duration)
         {
             float t = (Time.time - startTime) / duration;
             // Direkte Verwendung des Alpha-Werts aus Lerp
-            Color newColor = new Color(startColor.r, startColor.g, startColor.b, Mathf.Lerp(startColor.a, 0f, t));
+            Color newButtonColor = new Color(startButtonColor.r, startButtonColor.g, startButtonColor.b, Mathf.Lerp(startButtonColor.a, 0f, t));
+            Color newTextColor = new Color(startTextColor.r, startTextColor.g, startTextColor.b, Mathf.Lerp(startButtonColor.a, 0f, t));
 
             // Aktualisieren der Farbeinstellungen der Buttons
-            buttonA.GetComponent<Image>().color = newColor;
-            buttonB.GetComponent<Image>().color = newColor;
-            buttonC.GetComponent<Image>().color = newColor;
-            buttonD.GetComponent<Image>().color = newColor;
+            buttonA.GetComponent<Image>().color = newButtonColor;
+            buttonB.GetComponent<Image>().color = newButtonColor;
+            buttonC.GetComponent<Image>().color = newButtonColor;
+            buttonD.GetComponent<Image>().color = newButtonColor;
+
+            questionText.color = newTextColor;
+            buttonTextA.color = newTextColor;
+            buttonTextB.color = newTextColor;
+            buttonTextC.color = newTextColor;
+            buttonTextD.color = newTextColor;
 
             yield return null;
         }
 
         // Sicherstellen, dass die Farbe am Ende des Fades auf vollständig transparent gesetzt wird
-        buttonA.GetComponent<Image>().color = new Color(startColor.r, startColor.g, startColor.b, 0f);
-        buttonB.GetComponent<Image>().color = new Color(startColor.r, startColor.g, startColor.b, 0f);
-        buttonC.GetComponent<Image>().color = new Color(startColor.r, startColor.g, startColor.b, 0f);
-        buttonD.GetComponent<Image>().color = new Color(startColor.r, startColor.g, startColor.b, 0f);
+        buttonA.GetComponent<Image>().color = new Color(startButtonColor.r, startButtonColor.g, startButtonColor.b, 0f);
+        buttonB.GetComponent<Image>().color = new Color(startButtonColor.r, startButtonColor.g, startButtonColor.b, 0f);
+        buttonC.GetComponent<Image>().color = new Color(startButtonColor.r, startButtonColor.g, startButtonColor.b, 0f);
+        buttonD.GetComponent<Image>().color = new Color(startButtonColor.r, startButtonColor.g, startButtonColor.b, 0f);
+        questionText.color = new Color(startTextColor.r, startTextColor.g, startTextColor.b, 0f);
+        buttonTextA.color =  new Color(startTextColor.r, startTextColor.g, startTextColor.b, 0f);
+        buttonTextB.color = new Color(startTextColor.r, startTextColor.g, startTextColor.b, 0f);
+        buttonTextC.color = new Color(startTextColor.r, startTextColor.g, startTextColor.b, 0f);
+        buttonTextD.color = new Color(startTextColor.r, startTextColor.g, startTextColor.b, 0f);
 
         AnswerGiven(buttonID);
 
@@ -209,29 +230,42 @@ public class Questions : MonoBehaviour
 
     IEnumerator FadeInButtons(int dur)
     {
+        Color startButtonColor = buttonA.GetComponent<Image>().color;
+        Color startTextColor = buttonTextA.color;
         float startTime = Time.time;
-        Color startColor = buttonTextA.color;
 
         while (Time.time - startTime < dur)
         {
             float t = (Time.time - startTime) / dur;
             // Direkte Verwendung des Alpha-Werts aus Lerp
-            Color newColor = new Color(startColor.r, startColor.g, startColor.b, Mathf.Lerp(0f, 1f, t));
+            Color newButtonColor = new Color(startButtonColor.r, startButtonColor.g, startButtonColor.b, Mathf.Lerp(0f, 1f, t));
+            Color newTextColor = new Color(startTextColor.r, startTextColor.g, startTextColor.b, Mathf.Lerp(0f, 1f, t));
 
             // Aktualisieren der Farbeinstellungen der Buttons
-            buttonA.GetComponent<Image>().color = newColor;
-            buttonB.GetComponent<Image>().color = newColor;
-            buttonC.GetComponent<Image>().color = newColor;
-            buttonD.GetComponent<Image>().color = newColor;
+            buttonA.GetComponent<Image>().color = newButtonColor;
+            buttonB.GetComponent<Image>().color = newButtonColor;
+            buttonC.GetComponent<Image>().color = newButtonColor;
+            buttonD.GetComponent<Image>().color = newButtonColor;
+
+            questionText.color = newTextColor;
+            buttonTextA.color = newTextColor;
+            buttonTextB.color = newTextColor;
+            buttonTextC.color = newTextColor;
+            buttonTextD.color = newTextColor;
 
             yield return null;
         }
 
         // Sicherstellen, dass die Farbe am Ende des Fades auf vollständig undurchsichtig gesetzt wird
-        buttonA.GetComponent<Image>().color = new Color(startColor.r, startColor.g, startColor.b, 1f);
-        buttonB.GetComponent<Image>().color = new Color(startColor.r, startColor.g, startColor.b, 1f);
-        buttonC.GetComponent<Image>().color = new Color(startColor.r, startColor.g, startColor.b, 1f);
-        buttonD.GetComponent<Image>().color = new Color(startColor.r, startColor.g, startColor.b, 1f);
+        buttonA.GetComponent<Image>().color = new Color(startButtonColor.r, startButtonColor.g, startButtonColor.b, 1f);
+        buttonB.GetComponent<Image>().color = new Color(startButtonColor.r, startButtonColor.g, startButtonColor.b, 1f);
+        buttonC.GetComponent<Image>().color = new Color(startButtonColor.r, startButtonColor.g, startButtonColor.b, 1f);
+        buttonD.GetComponent<Image>().color = new Color(startButtonColor.r, startButtonColor.g, startButtonColor.b, 1f);
+        questionText.color = new Color(startTextColor.r, startTextColor.g, startTextColor.b, 1f);
+        buttonTextA.color = new Color(startTextColor.r, startTextColor.g, startTextColor.b, 1f);
+        buttonTextB.color = new Color(startTextColor.r, startTextColor.g, startTextColor.b, 1f);
+        buttonTextC.color = new Color(startTextColor.r, startTextColor.g, startTextColor.b, 1f);
+        buttonTextD.color = new Color(startTextColor.r, startTextColor.g, startTextColor.b, 1f);
 
     }
 
