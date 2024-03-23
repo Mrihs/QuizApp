@@ -15,6 +15,8 @@ public class Questions : MonoBehaviour
     public TMP_Text playerScoreText;
     [Tooltip("The Text for the Players' Lobby")]
     public TMP_Text playerLobbyText;
+    [Tooltip("The Text for the Category")]
+    public TMP_Text categoryText;
     [Tooltip("The Text for the Questions' Number")]
     public TMP_Text questionCounter;
 
@@ -63,6 +65,8 @@ public class Questions : MonoBehaviour
     [HideInInspector]
     public int playerScore; // A Variable for the Players' Score
     [HideInInspector]
+    public string Category; // A Variable for the selected Category
+    [HideInInspector]
     public string lobbyName; // A Variable for the Players' Lobby
     [HideInInspector]
     public string questionNumberText; // The Text for the questionCounter
@@ -103,8 +107,14 @@ public class Questions : MonoBehaviour
         else //Name Players' Lobby if no key is defined in the PlayerPrefs
             {lobbyName = "Unknown Lobby";}
 
+        // Load Players' Lobby Name from PlayerPrefs if the key exists
+        if (PlayerPrefs.HasKey("Category"))
+        { Category = PlayerPrefs.GetString("Category"); }
+        else //Name Players' Lobby if no key is defined in the PlayerPrefs
+        { Category = "Test"; }
+
         // Lese das CSV-Asset und fülle die Frage-Datenliste
-        LoadCSV(csvFile.text);
+        LoadCSV(csvFile.text, Category);
 
 
 
@@ -142,6 +152,7 @@ public class Questions : MonoBehaviour
         playerNameText.text = playerName;
         playerScoreText.text = playerScore.ToString();
         playerLobbyText.text = lobbyName;
+        categoryText.text = Category;
 
         questionCounter.text = "Frage " + questionNumber.ToString();
 }
@@ -348,7 +359,7 @@ public void BackButtonPressed()
 
 
     ///////////////////////// Load CSV File /////////////////////////
-    void LoadCSV(string fileName)
+    void LoadCSV(string fileName, string Category)
     {
         string[] lines = fileName.Split('\n');
         bool isFirstLine = true; // Flag to skip the first line
@@ -362,29 +373,24 @@ public void BackButtonPressed()
             string[] fields = line.Split(';');
             if (fields.Length == 7)
             {
-                QuestionData question = new QuestionData();
-                question.category = fields[0];
-                question.question = fields[1];
-                List<string> options = new List<string> { fields[2], fields[3], fields[4], fields[5] };
-                // Zufällige Umplatzierung der Optionen
-                Shuffle(options);
-                question.option1 = options[0];
-                question.option2 = options[1];
-                question.option3 = options[2];
-                question.option4 = options[3];
-                int.TryParse(fields[6], out question.correct);
-                // Anpassen des 'correct'-Werts basierend auf der neuen Position der ersten Option
-                question.correct = options.IndexOf(fields[2])+1;
-                questionDataList.Add(question);
+                if(fields[0] == Category)
+                { 
+                    QuestionData question = new QuestionData();
+                    question.category = fields[0];
+                    question.question = fields[1];
+                    List<string> options = new List<string> { fields[2], fields[3], fields[4], fields[5] };
+                    // Zufällige Umplatzierung der Optionen
+                    Shuffle(options);
+                    question.option1 = options[0];
+                    question.option2 = options[1];
+                    question.option3 = options[2];
+                    question.option4 = options[3];
+                    int.TryParse(fields[6], out question.correct);
+                    // Anpassen des 'correct'-Werts basierend auf der neuen Position der ersten Option
+                    question.correct = options.IndexOf(fields[2])+1;
+                    questionDataList.Add(question);
+                }
 
-
-
-                Debug.Log("Loaded question: " + question.question +
-          " Option1: " + question.option1 +
-          " Option2: " + question.option2 +
-          " Option3: " + question.option3 +
-          " Option4: " + question.option4 +
-          " Correct: " + question.correct);
             }
             else
             {

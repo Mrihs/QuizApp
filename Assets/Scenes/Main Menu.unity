@@ -1276,7 +1276,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1199552711
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2319,6 +2319,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   PlayerNameInput: {fileID: 1642113001}
   LobbyNameInput: {fileID: 1276197671}
+  csvFile: {fileID: 4900000, guid: fa9b827f2ed764dd595c9d02a24d6812, type: 3}
+  dropdown: {fileID: 1618746845}
 --- !u!1 &1637940590
 GameObject:
   m_ObjectHideFlags: 0
@@ -3072,7 +3074,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 961534895}
   m_Direction: 2
   m_Value: 0
-  m_Size: 0.4642856
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
