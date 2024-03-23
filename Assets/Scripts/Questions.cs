@@ -50,6 +50,10 @@ public class Questions : MonoBehaviourPunCallbacks
     [Tooltip("The Button Element for Button D")]
     public GameObject buttonD;
 
+
+    public float FadeDuration = 0.5f;
+
+
     [Header("Button Colors")]
     [Tooltip("The Default Color of the Question Panel")]
     public Color defaultQuestionPanelColor;
@@ -213,25 +217,25 @@ public void BackButtonPressed()
 
     public void buttonPressedA()
     {
-        StartCoroutine(FadeOutButtons(1, 1));
+        StartCoroutine(FadeOutButtons(FadeDuration, 1));
     }
 
 
     public void buttonPressedB()
     {
-        StartCoroutine(FadeOutButtons(1, 2));
+        StartCoroutine(FadeOutButtons(FadeDuration, 2));
     }
 
 
     public void buttonPressedC()
     {
-        StartCoroutine(FadeOutButtons(1, 3));
+        StartCoroutine(FadeOutButtons(FadeDuration, 3));
     }
 
 
     public void buttonPressedD()
     {
-        StartCoroutine(FadeOutButtons(1, 4));
+        StartCoroutine(FadeOutButtons(FadeDuration, 4));
     }
 
 
@@ -341,11 +345,11 @@ public void BackButtonPressed()
 
         AnswerGiven(buttonID);
 
-        StartCoroutine(FadeInButtons(1));
+        StartCoroutine(FadeInButtons(FadeDuration));
     }
 
 
-    IEnumerator FadeInButtons(int dur)
+    IEnumerator FadeInButtons(float dur)
     {
         Color startButtonColor = defaultButtonColor;
         Color startTextColor = buttonTextA.color;
