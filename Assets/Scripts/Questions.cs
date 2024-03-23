@@ -15,6 +15,8 @@ public class Questions : MonoBehaviour
     public TMP_Text playerScoreText;
     [Tooltip("The Text for the Players' Lobby")]
     public TMP_Text playerLobbyText;
+    [Tooltip("The Text for the Questions' Number")]
+    public TMP_Text questionCounter;
 
     [Header("Question Fields")]
     [Tooltip("The Text for the current Question")]
@@ -58,6 +60,9 @@ public class Questions : MonoBehaviour
     public int playerScore; // A Variable for the Players' Score
     [HideInInspector]
     public string lobbyName; // A Variable for the Players' Lobby
+    [HideInInspector]
+    public string questionNumberText; // The Text for the questionCounter
+    public int questionNumber = 1; // A Variable for the question Count
 
 
 
@@ -79,6 +84,7 @@ public class Questions : MonoBehaviour
     public void Start()
     {
         playerScore = 0;
+        questionNumber = 1;
 
         // Load Players' Name from PlayerPrefs if the key exists
         if (PlayerPrefs.HasKey("PlayerName"))
@@ -131,7 +137,9 @@ public class Questions : MonoBehaviour
         playerNameText.text = playerName;
         playerScoreText.text = playerScore.ToString();
         playerLobbyText.text = lobbyName;
-    }
+
+        questionCounter.text = "Frage " + questionNumber.ToString();
+}
 
 
 
@@ -140,8 +148,8 @@ public class Questions : MonoBehaviour
 
 
 
-    ///////////////////////// Button Functions /////////////////////////
-    public void BackButtonPressed()
+///////////////////////// Button Functions /////////////////////////
+public void BackButtonPressed()
     {
         //Load Scene Number 0
         SceneManager.LoadScene(0);
@@ -174,6 +182,8 @@ public class Questions : MonoBehaviour
 
     void AnswerGiven(int givenAnswer)
     {
+        questionNumber += 1;
+
         if (givenAnswer == questionDataList[currentQuestionIndex].correct)
         {
             playerScore += 10;
