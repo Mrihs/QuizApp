@@ -108,12 +108,15 @@ public class Questions : MonoBehaviourPunCallbacks
 
     private List<Player> playersInRoom = new List<Player>(); // Liste der Spieler im Raum
 
+    private PhotonView photonView;
 
 
     public void Start()
     {
         playerScore = 0;
         questionNumber = 1;
+
+        photonView = GetComponent<PhotonView>();
 
         // Load Players' Name from PlayerPrefs if the key exists
         if (PlayerPrefs.HasKey("PlayerName"))
@@ -247,6 +250,9 @@ public void BackButtonPressed()
         {
             playerScore += 10;
         }
+
+        UpdatePlayerScore(playerScore);
+
 
         currentQuestionIndex += 1;
         // Überprüfen, ob currentQuestionIndex außerhalb des gültigen Bereichs liegt
@@ -559,6 +565,23 @@ public void BackButtonPressed()
 
             // Hier kannst du weitere Aktualisierungen für den neuen Spieler durchführen, wenn nötig
         }
+    }
+
+
+    public void UpdatePlayerScore(int newScore)
+    {
+        playerScore = newScore;
+        playerScoreText.text = playerScore.ToString();
+
+        // Synchronisiere die Punktzahl über das Netzwerk
+        photonView.RPC("SyncPlayerScore", RpcTarget.All, newScore);
+    }
+
+    [PunRPC]
+    private void SyncPlayerScore(int newScore)
+    {
+        playerScore = newScore;
+        playerScoreText.text = playerScore.ToString();
     }
 
 }
