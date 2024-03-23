@@ -19,6 +19,8 @@ public class Questions : MonoBehaviour
     public TMP_Text questionCounter;
 
     [Header("Question Fields")]
+    [Tooltip("The Pannel for the Questions")]
+    public GameObject questionPannel;
     [Tooltip("The Text for the current Question")]
     public TMP_Text questionText;
     [Tooltip("The Text for Button A")]
@@ -262,6 +264,7 @@ public void BackButtonPressed()
             buttonTextB.color = newTextColor;
             buttonTextC.color = newTextColor;
             buttonTextD.color = newTextColor;
+            questionCounter.color = newTextColor;
 
             yield return null;
         }
@@ -276,6 +279,7 @@ public void BackButtonPressed()
         buttonTextB.color = new Color(startTextColor.r, startTextColor.g, startTextColor.b, 0f);
         buttonTextC.color = new Color(startTextColor.r, startTextColor.g, startTextColor.b, 0f);
         buttonTextD.color = new Color(startTextColor.r, startTextColor.g, startTextColor.b, 0f);
+        questionCounter.color = new Color(startTextColor.r, startTextColor.g, startTextColor.b, 0f);
 
         AnswerGiven(buttonID);
 
@@ -307,6 +311,7 @@ public void BackButtonPressed()
             buttonTextB.color = newTextColor;
             buttonTextC.color = newTextColor;
             buttonTextD.color = newTextColor;
+            questionCounter.color = newTextColor;
 
             yield return null;
         }
@@ -323,6 +328,7 @@ public void BackButtonPressed()
         buttonTextB.color = new Color(buttonTextColor.r, buttonTextColor.g, buttonTextColor.b, 1f);
         buttonTextC.color = new Color(buttonTextColor.r, buttonTextColor.g, buttonTextColor.b, 1f);
         buttonTextD.color = new Color(buttonTextColor.r, buttonTextColor.g, buttonTextColor.b, 1f);
+        questionCounter.color = new Color(buttonTextColor.r, buttonTextColor.g, buttonTextColor.b, 1f);
 
     }
 
