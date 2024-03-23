@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.IO;
 using UnityEngine.UI;
 using UnityEngine;
@@ -84,7 +85,7 @@ public class Questions : MonoBehaviourPunCallbacks
 
     private string lobbyCodeName;
     private string opponentName;
-
+    private int opponentScore;
 
     // Structure for the Question-Data
     public struct QuestionData
@@ -100,6 +101,9 @@ public class Questions : MonoBehaviourPunCallbacks
     public List<QuestionData> questionDataList = new List<QuestionData>();
 
     private int currentQuestionIndex = 0; // A Variable for the current Question-Index
+
+    private List<Player> playersInRoom = new List<Player>(); // Liste der Spieler im Raum
+
 
 
     public void Start()
@@ -165,6 +169,16 @@ public class Questions : MonoBehaviourPunCallbacks
 
     public void Update()
     {
+        // Aktualisiere die Liste der Spieler im Raum
+        UpdatePlayersInRoom();
+
+        // Durchlaufe die Liste der Spieler und gib eine Benachrichtigung für jeden Spieler aus
+        foreach (Player player in playersInRoom)
+        {
+            Debug.Log("Player in room: "+ player.NickName);
+            // Hier kannst du weitere Aktionen für jeden Spieler ausführen, wenn nötig
+        }
+
         //Debug.Log("Photon Network Connected: " + PhotonNetwork.IsConnected);
         //Debug.Log("Photon InRoom: " + PhotonNetwork.InRoom);
         //Assign Variables to the names
@@ -453,6 +467,8 @@ public void BackButtonPressed()
 
         Debug.Log("Connected to Photon ");
 
+        PhotonNetwork.NickName = playerName;
+
         // Check if lobby with the lobbyCodeName already exists
         PhotonNetwork.JoinOrCreateRoom(lobbyCodeName, new Photon.Realtime.RoomOptions { MaxPlayers = 2 }, null);
     }
@@ -474,6 +490,15 @@ public void BackButtonPressed()
                 // Weise den Namen des anderen Spielers der opponentName-Variable zu
                 opponentName = player.NickName;
                 opponentNameText.text = opponentName;
+
+                // Abrufen des Spielstands des anderen Spielers
+                object scoreObject;
+                if (player.CustomProperties.TryGetValue("playerScore", out scoreObject))
+                {
+                    opponentScore = (int)scoreObject;
+                    opponentScoreText.text = opponentScore.ToString();
+                }
+
                 break; // Beende die Schleife, sobald der andere Spieler gefunden wurde
             }
         }
@@ -498,5 +523,38 @@ public void BackButtonPressed()
     }
 
 
+
+    public void UpdateOpponentScore(int newOpponentScore)
+    {
+        opponentScore = newOpponentScore;
+        opponentScoreText.text = opponentScore.ToString();
+    }
+
+
+
+    public void UpdatePlayersInRoom()
+    {
+        playersInRoom.Clear(); // Lösche die aktuelle Liste
+
+        // Fülle die Liste mit den aktuellen Spielern im Raum
+        playersInRoom.AddRange(PhotonNetwork.PlayerList.Where(player => !player.IsLocal));
+    }
+
+
+
+    public override void OnPlayerEnteredRoom(Player newPlayer)
+    {
+        Debug.Log("A new player has entered the room.");
+
+        // Überprüfe, ob es sich um den neuen Spieler handelt
+        if (!newPlayer.IsLocal)
+        {
+            // Weise den Namen des neuen Spielers der opponentName-Variable zu
+            opponentName = newPlayer.NickName;
+            opponentNameText.text = opponentName;
+
+            // Hier kannst du weitere Aktualisierungen für den neuen Spieler durchführen, wenn nötig
+        }
+    }
 
 }
