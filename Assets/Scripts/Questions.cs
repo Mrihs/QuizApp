@@ -206,6 +206,16 @@ public class Questions : MonoBehaviourPunCallbacks
 
 
 
+        
+
+        //////////////////// Remove Debug Panel if not test ////////////////////
+        if (Category == "Test")
+        { debugText.gameObject.SetActive(true); }
+        else
+        { debugText.gameObject.SetActive(false); }
+
+
+
 
 
         //////////////////// Define Values ////////////////////
