@@ -12,6 +12,24 @@ using Photon.Realtime;
 
 public class Questions : MonoBehaviourPunCallbacks
 {
+    // Struktur zur Speicherung der Spielerdaten einschließlich des Spielstands
+    public struct PlayerData
+    {
+        public string playerName;
+        public int playerScore;
+    }
+
+    private Dictionary<int, PlayerData> playersData = new Dictionary<int, PlayerData>();
+
+    // Method to initialize player data when a new player joins the room
+    private void InitializePlayerData(Player newPlayer)
+    {
+        int actorNumber = newPlayer.ActorNumber;
+        PlayerData newPlayerData = new PlayerData(); // Initialize PlayerData as needed
+        playersData[actorNumber] = newPlayerData;
+    }
+
+
     ///////////////////////// Input Fields /////////////////////////
     ////////// Player Infos //////////
     [Header("Player Fields")]
@@ -250,6 +268,16 @@ public class Questions : MonoBehaviourPunCallbacks
     ///////////////////////// At every Frame /////////////////////////
     public void Update()
     {
+        Debug.Log("Local Player Actor Number: " + PhotonNetwork.LocalPlayer.ActorNumber);
+
+        // Debug log to print the keys (actor numbers) in the playersData dictionary
+        foreach (var key in playersData.Keys)
+        {
+            Debug.Log("PlayerData Key: " + key);
+        }
+
+
+
         ////////// Photon //////////
         // Update the list of players in the lobby
         UpdatePlayersInRoom();
@@ -283,9 +311,10 @@ public class Questions : MonoBehaviourPunCallbacks
         questionCounter.text = "Frage " + questionNumber.ToString();
 
 
-        // Update the text of Opoponents name
+        // Update the text of the Opoponents Name
         opponentNameText.text = opponentName;
-
+        // Update the text of the Opponents' Score
+        opponentScoreText.text = opponentScore.ToString();
     }
 
 
@@ -358,7 +387,11 @@ public class Questions : MonoBehaviourPunCallbacks
 
         // If the current answer was corret
         if (givenAnswer == questionDataList[currentQuestionIndex].correct)
-        { playerScore += 10; } // Add 10 points to the current score
+        {
+            //playerScore += 10;
+            IncreasePlayerScore(10);
+
+        } // Add 10 points to the current score
 
 
         // Increase the Index-Number for the current Question 
@@ -746,6 +779,29 @@ public class Questions : MonoBehaviourPunCallbacks
                 break;
             }
         }
+        InitializeLocalPlayerData();
+    }
+
+    private void InitializeLocalPlayerData()
+    {
+        // Get the actor number of the local player
+        int localActorNumber = PhotonNetwork.LocalPlayer.ActorNumber;
+
+        // Check if the local player's actor number is valid
+        if (localActorNumber != 0)
+        {
+            // Initialize player data for the local player
+            PlayerData localPlayerData = new PlayerData();
+            localPlayerData.playerName = playerName; // Set the player's name
+            localPlayerData.playerScore = 0; // Set the initial score
+
+            // Add the local player's data to the playersData dictionary
+            playersData.Add(localActorNumber, localPlayerData);
+        }
+        else
+        {
+            Debug.LogError("Local player's actor number is not valid.");
+        }
     }
 
 
@@ -802,6 +858,19 @@ public class Questions : MonoBehaviourPunCallbacks
     ////////// When a Player entered the room //////////
     public override void OnPlayerEnteredRoom(Player newPlayer)
     {
+        // Run the functino when a player entered the room
+        base.OnPlayerEnteredRoom(newPlayer);
+
+        // Create a new PlayerData
+        PlayerData newData = new PlayerData();
+        // Add a cell for the players Nickname
+        newData.playerName = newPlayer.NickName;
+        // Add a cell for the players Score
+        newData.playerScore = 0;
+        //Add the new PlayerData to the PlayerData
+        playersData.Add(newPlayer.ActorNumber, newData);
+
+
         // Create a log
         Debug.Log("A new player has entered the room.");
 
@@ -811,6 +880,58 @@ public class Questions : MonoBehaviourPunCallbacks
             // Save the nickname of the other player as opponentname
             opponentName = newPlayer.NickName;
             //opponentNameText.text = opponentName;
+        }
+    }
+
+
+
+
+
+
+    public void IncreasePlayerScore(int increaseAmount)
+    {
+        // Increase the playerScore
+        playerScore += increaseAmount;
+        Debug.Log("playerScore += increaseAmount is called");
+
+
+        // Update the PlayerData for the local player
+        if (playersData.ContainsKey(PhotonNetwork.LocalPlayer.ActorNumber))
+        {
+            Debug.Log("playersData.ContainsKey(PhotonNetwork.LocalPlayer.ActorNumber) is true");
+
+            // Extract the PlayerData
+            PlayerData localPlayerData = playersData[PhotonNetwork.LocalPlayer.ActorNumber];
+
+            // Modify the playerScore
+            localPlayerData.playerScore = playerScore;
+
+            // Update the dictionary entry
+            playersData[PhotonNetwork.LocalPlayer.ActorNumber] = localPlayerData;
+
+            // Update the player's custom property for score
+            ExitGames.Client.Photon.Hashtable playerCustomProps = new ExitGames.Client.Photon.Hashtable();
+            playerCustomProps["Score"] = playerScore;
+            PhotonNetwork.LocalPlayer.SetCustomProperties(playerCustomProps);
+        }
+    }
+
+
+
+    // Override OnPlayerPropertiesUpdate to listen for changes in player properties
+    public override void OnPlayerPropertiesUpdate(Player targetPlayer, ExitGames.Client.Photon.Hashtable changedProps)
+    {
+        Debug.Log("Called: public override void OnPlayerPropertiesUpdate");
+
+        // Check if the changed properties contain the score
+        if (changedProps.ContainsKey("Score"))
+        {
+            Debug.Log("Score was updated in changedprops");
+            // Update the opponentScore if it's not the local player's score
+            if (targetPlayer != PhotonNetwork.LocalPlayer)
+            {
+                opponentScore = (int)changedProps["Score"];
+            }
         }
     }
 }
