@@ -12,10 +12,12 @@ using Photon.Realtime;
 
 public class Questions : MonoBehaviourPunCallbacks
 {
-    // Struktur zur Speicherung der Spielerdaten einschließlich des Spielstands
+    // Structure to Save Playerdata
     public struct PlayerData
     {
+        // Players' Name
         public string playerName;
+        // Players' Score
         public int playerScore;
     }
 
@@ -31,6 +33,16 @@ public class Questions : MonoBehaviourPunCallbacks
 
 
     ///////////////////////// Input Fields /////////////////////////
+    ////////// Panels //////////
+    [Header("Panels")]
+    [Tooltip("Question Panel")]
+    public GameObject questionPanel;
+    [Tooltip("Loading Panel")]
+    public GameObject loadingPanel;
+    [Tooltip("Error Panel")]
+    public GameObject errorPanel;
+
+
     ////////// Player Infos //////////
     [Header("Player Fields")]
     [Tooltip("The Text for the Players' Name")]
@@ -156,9 +168,9 @@ public class Questions : MonoBehaviourPunCallbacks
     private int currentQuestionIndex = 0;
     // List of Players in a room
     private List<Player> playersInRoom = new List<Player>();
-
-
-
+    // A bool for whether still connecting
+    private bool isConnecting = true;
+    private int playerCount = 0;
 
 
 
@@ -207,6 +219,15 @@ public class Questions : MonoBehaviourPunCallbacks
 
         // Connect to Photon server
         PhotonNetwork.ConnectUsingSettings();
+
+
+
+
+
+        //////////////////// Set Panels ////////////////////
+        loadingPanel.SetActive(true);
+        questionPanel.SetActive(false);
+        errorPanel.SetActive(false);
 
 
 
@@ -294,6 +315,36 @@ public class Questions : MonoBehaviourPunCallbacks
         // Create a Debug for the Lobby-Connection
         //Debug.Log("Photon InRoom: " + PhotonNetwork.InRoom);
 
+        // Count the number of Players
+        playerCount = PhotonNetwork.CurrentRoom.PlayerCount;
+
+        Debug.Log("Player Count: " + playerCount);
+
+        if (playerCount == 2 && isConnecting == true)
+        {
+            //Deactivate the loading Panel
+            loadingPanel.SetActive(false);
+            //Activate the question Panel
+            questionPanel.SetActive(true);
+
+
+            // set isConnecting to false
+            isConnecting = false;
+        }
+
+
+        if (playerCount < 2 && isConnecting == false)
+        {
+            //Deactivate the loading Panel
+            loadingPanel.SetActive(false);
+            //Deactivate the question Panel
+            questionPanel.SetActive(false);
+            //Activate the error Panel
+            errorPanel.SetActive(true);
+
+            PhotonNetwork.Disconnect();
+        }
+
 
 
 
@@ -336,8 +387,10 @@ public class Questions : MonoBehaviourPunCallbacks
         // Leave the Photon room
         PhotonNetwork.LeaveRoom();
 
+        PhotonNetwork.Disconnect();
+
         //Load Scene Number 0
-        // SceneManager.LoadScene(0);
+        SceneManager.LoadScene(0);
     }
 
 
@@ -779,21 +832,30 @@ public class Questions : MonoBehaviourPunCallbacks
                 break;
             }
         }
+
+        //Run the funciton to Initialize the Local Player
         InitializeLocalPlayerData();
     }
 
+
+
+
+
+    ////////// Function to Initialze the Local Player //////////
     private void InitializeLocalPlayerData()
     {
         // Get the actor number of the local player
         int localActorNumber = PhotonNetwork.LocalPlayer.ActorNumber;
 
-        // Check if the local player's actor number is valid
+        // If the local players' actor number is not valid
         if (localActorNumber != 0)
         {
-            // Initialize player data for the local player
+            // Create a Player Data for the local player
             PlayerData localPlayerData = new PlayerData();
-            localPlayerData.playerName = playerName; // Set the player's name
-            localPlayerData.playerScore = 0; // Set the initial score
+            // Set the player's name
+            localPlayerData.playerName = playerName;
+            // Set the initial score
+            localPlayerData.playerScore = 0;
 
             // Add the local player's data to the playersData dictionary
             playersData.Add(localActorNumber, localPlayerData);
@@ -834,7 +896,7 @@ public class Questions : MonoBehaviourPunCallbacks
     public override void OnLeftRoom()
     {
         // After leaving the room, load Scene Number 0
-        SceneManager.LoadScene(0);
+        //SceneManager.LoadScene(0);
     }
 
 
@@ -887,19 +949,15 @@ public class Questions : MonoBehaviourPunCallbacks
 
 
 
-
+    ////////// Function to Increase the player Score //////////
     public void IncreasePlayerScore(int increaseAmount)
     {
         // Increase the playerScore
         playerScore += increaseAmount;
-        Debug.Log("playerScore += increaseAmount is called");
-
 
         // Update the PlayerData for the local player
         if (playersData.ContainsKey(PhotonNetwork.LocalPlayer.ActorNumber))
         {
-            Debug.Log("playersData.ContainsKey(PhotonNetwork.LocalPlayer.ActorNumber) is true");
-
             // Extract the PlayerData
             PlayerData localPlayerData = playersData[PhotonNetwork.LocalPlayer.ActorNumber];
 
@@ -911,25 +969,27 @@ public class Questions : MonoBehaviourPunCallbacks
 
             // Update the player's custom property for score
             ExitGames.Client.Photon.Hashtable playerCustomProps = new ExitGames.Client.Photon.Hashtable();
+            // Asign the playerScore to he playerCustomProbs
             playerCustomProps["Score"] = playerScore;
+            // Set Custom Properties of the local Player
             PhotonNetwork.LocalPlayer.SetCustomProperties(playerCustomProps);
         }
     }
 
 
 
-    // Override OnPlayerPropertiesUpdate to listen for changes in player properties
+
+
+    ////////// When Player Properties have changed //////////
     public override void OnPlayerPropertiesUpdate(Player targetPlayer, ExitGames.Client.Photon.Hashtable changedProps)
     {
-        Debug.Log("Called: public override void OnPlayerPropertiesUpdate");
-
         // Check if the changed properties contain the score
         if (changedProps.ContainsKey("Score"))
         {
-            Debug.Log("Score was updated in changedprops");
             // Update the opponentScore if it's not the local player's score
             if (targetPlayer != PhotonNetwork.LocalPlayer)
             {
+                //Adjust the oponents Score
                 opponentScore = (int)changedProps["Score"];
             }
         }
